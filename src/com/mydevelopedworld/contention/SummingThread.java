@@ -7,8 +7,9 @@ import static java.lang.System.out;
  * @author while mydevelopedworld.wordpress.com
  * 
  * Thread that will perform the increment operations.
- * A Thread can be created in two different Modality: 
- * CONTENTION: The Thread will write on a shared variable and will perform synchronization operation.
+ * A Thread can be created in three different Modality: 
+ * CONTENTION_ATOMIC_INT: The Thread will write to an AtomicInteger
+ * CONTENTION_SYNC: The Thread will write on a shared variable using synchornized methods
  * AVOID_CONTENTION: The Thread will write on a reserved slot of a shared array in order to avoid contention.
  * 
  */
