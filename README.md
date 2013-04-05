@@ -1,4 +1,4 @@
-Let's test some Thread Contetions in Java!
+Let's test some Thread Contetion in Java!
 ====================
 
 The test wants to show how, when it is possible, it's better to avoid Thread Contention,
