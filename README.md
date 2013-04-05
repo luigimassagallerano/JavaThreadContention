@@ -18,7 +18,7 @@ through a java.util.concurrent.atomic.AtomicInteger.
 
 + If the modality is <b>AVOID CONTENTION</b>, every Thread will avoid contention incrementing an int
 in a reserved array position. Only in the end, after the main Thread joins the other Threads,
-the final result will be built summing all the value of the array.
+the final result will be built summing all the array values.
 
 In the end the Test will print the result and the time it took to calculate it.
 
@@ -26,7 +26,7 @@ In the end the Test will print the result and the time it took to calculate it.
 
 You can compile the source code and then run the test with: 
 
-1. ant clean compile
+1. ant clean compile (or, if your prefer with: javac -d bin src/com/mydevelopedworld/contention/*
 2. java -classpath bin com.mydevelopedworld.contention.TestContention
 
 
