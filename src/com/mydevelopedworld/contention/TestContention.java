@@ -28,13 +28,14 @@ import com.mydevelopedworld.contention.SummingThread.Modality;
 public class TestContention {
 
 	private static void printUsage(){
-		out.println("Please pass me three args: ");
-		out.println("\tFirst arg: Number of Threads");
+		out.println("Please pass me three integer: ");
+		out.println("\tFirst int: Number of Threads");
 		out.println("\t\tPass a number > 0");
-		out.println("\tSecond arg: Modality:");
+		out.println("\tSecond int: Modality:");
 		out.println("\t\tPass 0 to avoid contention");
-		out.println("\t\tPass 1 to try with contention");
-		out.println("\tThird arg: Number of Loops:");
+		out.println("\t\tPass 1 to try with AtomicInteger contention");
+		out.println("\t\tPass 2 to try with Synchronized method contention");
+		out.println("\tThird int: Number of Loops:");
 		out.println("\t\tPass a number > 0");
 		System.exit(-1);
 	}
@@ -56,7 +57,7 @@ public class TestContention {
 		}catch(NumberFormatException e){
 			TestContention.printUsage();
 		}
-		if(nThread < 1 || modality < 0 || modality > 1 || loops < 1){
+		if(nThread < 1 || modality < 0 || modality > 2 || loops < 1){
 			TestContention.printUsage();
 		}
 		
@@ -67,15 +68,21 @@ public class TestContention {
 
 		final long startTime = System.currentTimeMillis();
 		if(modality == 0){ /* Avoid Contention */
-			out.println(nThread+" Threads in modality AVOID CONTENTION will loop for "+loops+" times...");
+			out.println(nThread+" Threads in modality AVOID_CONTENTION will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
 				threads[i] = new Thread(new SummingThread(i, Modality.AVOID_CONTENTION, loops, so));
 				threads[i].start();
 			}
-		}else{ /* Contention */
-			out.println(nThread+" Threads in modality CONTENTION will loop for "+loops+" times...");
+		}else if(modality == 1){ /* Contention  AtomicInt*/		 
+			out.println(nThread+" Threads in modality CONTENTION_ATOMIC_INT will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
-				threads[i] = new Thread(new SummingThread(i, Modality.CONTENTION, loops, so));
+				threads[i] = new Thread(new SummingThread(i, Modality.CONTENTION_ATOMIC_INT, loops, so));
+				threads[i].start();
+			}
+		}else{
+			out.println(nThread+" Threads in modality CONTENTION_SYNC will loop "+loops+" times...");
+			for(int i = 0; i < nThread; i++){
+				threads[i] = new Thread(new SummingThread(i, Modality.CONTENTION_SYNC, loops, so));
 				threads[i].start();
 			}
 		}
@@ -94,7 +101,7 @@ public class TestContention {
 
 		out.println("Done!");
 		if(modality == 0){ /* Avoid Contention */
-			int value = 0;
+			long value = 0;
 			for(int i = 0; i < so.partialValues.length; i++){
 				/* 
 				 * When a thread terminates and causes a Thread.join in another thread to return, 
@@ -105,10 +112,13 @@ public class TestContention {
 				value += so.partialValues[i]; // This is safe!
 			}
 			out.println("\tResult: "+value);
-		}else{ /* Contention */
+		}else if(modality == 1){ /* Contention AtomicInt*/
 			out.println("\tResult: "+so.value);
+		}else{
+			out.println("\tResult: "+so.getValueSyn());
 		}
-		out.println("\tExpected : "+(nThread*loops));
+		long result = (long)nThread * (long)loops;
+		out.println("\tExpected: "+result);
 		
 		final long endTime = System.currentTimeMillis();
 		out.println();

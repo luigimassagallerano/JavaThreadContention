@@ -15,7 +15,8 @@ import static java.lang.System.out;
 public class SummingThread implements Runnable {
 
 	public enum Modality{
-		CONTENTION,
+		CONTENTION_ATOMIC_INT,
+		CONTENTION_SYNC,
 		AVOID_CONTENTION;
 	}
 	
@@ -25,7 +26,7 @@ public class SummingThread implements Runnable {
 	 */
 	private int idThread;
 	/**
-	 * Modality: CONTENTION or AVOID_CONTENTION
+	 * Modality: CONTENTION_SYNC, CONTENTION_ATOMIC_INT or AVOID_CONTENTION
 	 */
 	private Modality modality;
 	/**
@@ -54,8 +55,12 @@ public class SummingThread implements Runnable {
 				this.loops--;
 			}
 			break;
-
-		default: /* CONTENTION */
+		case CONTENTION_SYNC:
+			while(this.loops > 0){
+				so.increment();
+				this.loops--;
+			}
+		default: /* CONTENTION ATOMIC INT */
 			while(this.loops > 0){
 				so.value.incrementAndGet();
 				this.loops--;
