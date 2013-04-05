@@ -18,7 +18,7 @@ through a java.util.concurrent.atomic.AtomicInteger.
 
 + If the modality is <b>AVOID CONTENTION</b>, every Thread will avoid contention incrementing an int
 in a reserved array position. Only in the end, after the main Thread joins the other Threads,
-the final result will be build summing all the value of the array.
+the final result will be built summing all the value of the array.
 
 In the end the Test will print the result and the time it took to calculate it.
 
