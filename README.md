@@ -27,6 +27,6 @@ In the end the Test will print the result and the time it took to calculate it.
 You can compile the source code and then run the test with: 
 
 1. ant clean compile (or, if your prefer with: javac -d bin src/com/mydevelopedworld/contention/*
-2. java -classpath bin com.mydevelopedworld.contention.TestContention
+2. java -classpath bin com.mydevelopedworld.contention.TestContention N Modality N
 
 
