@@ -21,7 +21,7 @@ The Threads will perform <b>M loops</b>, incrementing a variable in every loop.
 
 In the end the Test will print the result and the time it took to calculate it.
 
-<b>Performance Graphs</b> can be found [on my blog](http://mydevelopedworld.wordpress.com).
+<b>Performance Graphs</b> can be found [on my blog](http://mydevelopedworld.wordpress.com/2013/04/06/multithreading-avoid-thread-contention-where-it-is-possible/).
 
 You can try this code following these steps: 
 
