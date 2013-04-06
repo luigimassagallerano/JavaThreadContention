@@ -23,9 +23,10 @@ In the end the Test will print the result and the time it took to calculate it.
 
 <b>Performance Graphs</b> can be found [on my blog](http://mydevelopedworld.wordpress.com).
 
-You can compile the source code and then run the test with: 
+You can try this code following these steps: 
 
-1. ant clean compile (or, if your prefer with: javac -d bin src/com/mydevelopedworld/contention/*
-2. java -classpath bin com.mydevelopedworld.contention.TestContention N Modality N
-
+1. git clone https://github.com/luigimassagallerano/JavaThreadContention.git
+2. cd JavaThreadContention
+3. ant clean compile
+4. java -classpath bin com.mydevelopedworld.contention.TestContention N-Threads Modality M-loops
 
