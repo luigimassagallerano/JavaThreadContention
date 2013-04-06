@@ -2,7 +2,7 @@ package com.mydevelopedworld.contention;
 
 import static java.lang.System.out;
 
-import com.mydevelopedworld.contention.SummingThread.Modality;
+import com.mydevelopedworld.contention.IncrementThread.Modality;
 
 /**
  * 
@@ -27,6 +27,10 @@ import com.mydevelopedworld.contention.SummingThread.Modality;
  */
 public class TestContention {
 
+	private static final int MODALITY_AVOID_CONTENTION = 0;
+	private static final int MODALITY_CONTENTION_ATOMIC_INT = 1;
+	private static final int MODALITY_CONTENTION_SYNC = 2;
+
 	private static void printUsage(){
 		out.println("Please pass me three integer: ");
 		out.println("\tFirst int: Number of Threads");
@@ -45,8 +49,8 @@ public class TestContention {
 			TestContention.printUsage();
 		}
 
-		int nThread = 0; // Number of Threads that will be created
-		int modality = 0; // Modality: 0 = AVOID_CONTENTION; 1 = CONTENTION
+		int nThread = 0; // Number of Threads
+		int modality = 0; // Modality: 0 = AVOID_CONTENTION; 1 = CONTENTION_ATOMIC_INT; 2 = CONTENTION_SYNC
 		int loops = 0; // How many increment operations every Thread will perform
 
 		/* Checking the input args... */
@@ -54,73 +58,87 @@ public class TestContention {
 			nThread = Integer.parseInt(args[0]);
 			modality = Integer.parseInt(args[1]);		
 			loops = Integer.parseInt(args[2]);
+			if(nThread < 1 || modality < 0 || modality > 2 || loops < 1){
+				TestContention.printUsage();
+			}
 		}catch(NumberFormatException e){
 			TestContention.printUsage();
-		}
-		if(nThread < 1 || modality < 0 || modality > 2 || loops < 1){
-			TestContention.printUsage();
-		}
-		
+		}		
+
 		/* Object used to collect the final result of the Threads increment operations */
-		SumObject so = new SumObject(nThread);
-		/* Thread array, used to perform the Join() on all of them */
+		IncrementThread.SumObject so = new IncrementThread.SumObject(nThread);
+		/* Thread array, used to perform join() on all of them */
 		Thread[] threads = new Thread[nThread];
 
 		final long startTime = System.currentTimeMillis();
-		if(modality == 0){ /* Avoid Contention */
+		
+		switch(modality){
+		/* Initializing and Starting the Threads... */
+		case MODALITY_AVOID_CONTENTION:
 			out.println(nThread+" Threads in modality AVOID_CONTENTION will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
-				threads[i] = new Thread(new SummingThread(i, Modality.AVOID_CONTENTION, loops, so));
+				threads[i] = new Thread(new IncrementThread(i, Modality.AVOID_CONTENTION, loops, so));
 				threads[i].start();
 			}
-		}else if(modality == 1){ /* Contention  AtomicInt*/		 
+			break;
+		case MODALITY_CONTENTION_ATOMIC_INT:
 			out.println(nThread+" Threads in modality CONTENTION_ATOMIC_INT will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
-				threads[i] = new Thread(new SummingThread(i, Modality.CONTENTION_ATOMIC_INT, loops, so));
+				threads[i] = new Thread(new IncrementThread(i, Modality.CONTENTION_ATOMIC_INT, loops, so));
 				threads[i].start();
 			}
-		}else{
+			break;
+		default: /* CONTENTION_SYNC */
 			out.println(nThread+" Threads in modality CONTENTION_SYNC will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
-				threads[i] = new Thread(new SummingThread(i, Modality.CONTENTION_SYNC, loops, so));
+				threads[i] = new Thread(new IncrementThread(i, Modality.CONTENTION_SYNC, loops, so));
 				threads[i].start();
 			}
+			break;
 		}
 
 		/* 
-		 * I'll wait for all Threads.
-		 * The join() creates a happens-before barrier
+		 * I'll wait for all Threads to be done...
 		 */
 		for(int i = 0; i < nThread; i++){
 			try {				
-				threads[i].join(); 
+				threads[i].join(); // The join() creates a happens-before barrier
 			} catch (InterruptedException e) {
 				e.printStackTrace(); 
 			}
 		}
 
-		out.println("Done!");
-		if(modality == 0){ /* Avoid Contention */
-			long value = 0;
-			for(int i = 0; i < so.partialValues.length; i++){
-				/* 
-				 * When a thread terminates and causes a Thread.join in another thread to return, 
-				 * then all the statements executed by the terminated thread have a happens-before relationship 
-				 * with all the statements following the successful join. 
-				 * The effects of the code in the thread are now visible to the thread that performed the join.
-				 */
-				value += so.partialValues[i]; // This is safe!
+		out.println("\nAll the Threads are done!");
+		switch(modality){
+			/* Showing the Result... */
+			case MODALITY_AVOID_CONTENTION:
+				long value = 0;
+				/* Overhead in order to combine the partial results */
+				for(int i = 0; i < so.partialValues.length; i++){
+					/* 
+					 * When a thread terminates and causes a Thread.join in another thread to return, 
+					 * then all the statements executed by the terminated thread have a happens-before relationship 
+					 * with all the statements following the successful join. 
+					 * The effects of the code in the thread are now visible to the thread that performed the join.
+					 */
+					value += so.partialValues[i]; // This is safe!
+				}
+				out.println("\tResult: "+value);
+				break;
+			case MODALITY_CONTENTION_SYNC:
+				out.println("\tResult: "+so.getValueSyn());
+				break;
+			default: /* MODALITY_CONTENTION_ATOMIC_INT */
+				out.println("\tResult: "+so.value);				
+				break;
 			}
-			out.println("\tResult: "+value);
-		}else if(modality == 1){ /* Contention AtomicInt*/
-			out.println("\tResult: "+so.value);
-		}else{
-			out.println("\tResult: "+so.getValueSyn());
-		}
+		
+		/* Expected result */
 		long result = (long)nThread * (long)loops;
 		out.println("\tExpected: "+result);
-		
 		final long endTime = System.currentTimeMillis();
+		
+		/* How much time did it take? */
 		out.println();
 		out.println("Total execution time: " + ((endTime - startTime)/1000.0) + "s");
 	}
