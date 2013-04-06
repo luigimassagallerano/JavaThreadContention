@@ -6,19 +6,18 @@ making the Threads work on different memory location and, only in the end, build
  
 The test needs three args:
 
-1. <b>N</b>: Number of Thread
-2. <b>Modality</b>: 0 = AVOID CONTENTION or 1 = WITH CONTENTION
-3. <b>M</b>: Number of loops
+1. <b>N</b>: Number of Threads
+2. <b>Modality</b>: 0 = AVOID CONTENTION; 1 = WITH CONTENTION (AtomicLong); 2 = WITH CONTENTION (Synchronized Method)
+3. <b>M</b>: Number of loops (Increment operations)
  
 The test will create and start <b>N Threads</b> in the specified <b>Modality</b>.
-The Threads will perform <b>M loops</b> of operation.
+The Threads will perform <b>M loops</b>, incrementing a variable in every loop.
 
-+ If the modality is <b>CONTENTION</b>, every Thread will build directly the final result, synchronizing each other
-through a java.util.concurrent.atomic.AtomicInteger.
++ If the modality is <b>CONTENTION_ATOMIC_LONG</b>, every Thread will contribute directly to the final result, mantaining consistency through java.util.concurrent.atomic.AtomicInteger.
 
-+ If the modality is <b>AVOID CONTENTION</b>, every Thread will avoid contention incrementing an int
-in a reserved array position. Only in the end, after the main Thread joins the other Threads,
-the final result will be built summing all the array values.
++ If the modality is <b>CONTENTION_SYNC</b>, every Thread will contribute directly to the final result, synchronizing each other through a synchornized method.
+
++ If the modality is <b>AVOID_CONTENTION</b>, every Thread will avoid contention incrementing a long in a reserved array position. Only in the end, after the main Thread have joined all the other Threads, the final result will be built summing all the array values.
 
 In the end the Test will print the result and the time it took to calculate it.
 
