@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 
  * Thread that will perform the increment operations.
  * A Thread can be created in three different Modality: 
- * CONTENTION_ATOMIC_INT: The Thread will write to an AtomicInteger
+ * CONTENTION_ATOMIC_LONG: The Thread will write to an AtomicLong
  * CONTENTION_SYNC: The Thread will write on a shared variable using synchornized methods
  * AVOID_CONTENTION: The Thread will write on a reserved slot of a shared array in order to avoid contention.
  * 
@@ -21,7 +21,7 @@ public class IncrementThread implements Runnable {
 	 * Enum which holds the three different modalities 
 	 */
 	public enum Modality{
-		CONTENTION_ATOMIC_INT, // Every Thread will increment a shared AtomicInteger
+		CONTENTION_ATOMIC_LONG, // Every Thread will increment a shared AtomicLong
 		CONTENTION_SYNC, // Every Thread will increment a shared int using a synchronized method
 		AVOID_CONTENTION; // Every Thread will increment a reserved int on a shared array
 	}
@@ -32,7 +32,7 @@ public class IncrementThread implements Runnable {
 	 */
 	private int idThread;
 	/**
-	 * Modality: CONTENTION_SYNC, CONTENTION_ATOMIC_INT or AVOID_CONTENTION
+	 * Modality: CONTENTION_SYNC, CONTENTION_ATOMIC_LONG or AVOID_CONTENTION
 	 */
 	private Modality modality;
 	/**
@@ -67,7 +67,7 @@ public class IncrementThread implements Runnable {
 				this.loops--;
 			}
 		default: 
-			/* CONTENTION_ATOMIC_INT */
+			/* CONTENTION_ATOMIC_LONG */
 			while(this.loops > 0){
 				so.value.incrementAndGet();
 				this.loops--;
@@ -84,7 +84,7 @@ public class IncrementThread implements Runnable {
 	 */
 	public static class SumObject{
 		/**
-		 * Used in CONTENTION_ATOMIC_INT modality:
+		 * Used in CONTENTION_ATOMIC_LONG modality:
 		 * every Thread will atomically increment this variable
 		 */
 		public AtomicLong value;

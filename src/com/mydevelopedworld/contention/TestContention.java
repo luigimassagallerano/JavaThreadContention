@@ -8,16 +8,18 @@ import com.mydevelopedworld.contention.IncrementThread.Modality;
  * 
  * @author while mydevelopedworld.wordpress.com
  * 
- * Main class which tests that in Multithreading, when it is possible,
- * it's better to avoid Thread Contentions.
+ * Main class which tests the performance of Multithreading Contention
  * 
  * The test nees three args:
- * 1)Number of Thread
- * 2)Modality: AVOID CONTENTION or CONTENTION
- * 3)Number of loops
+ * 1) N: Number of Threads
+ * 2) Modality: 0 = AVOID_CONTENTION; 1 = CONTENTION_ATOMIC_LONG; 2 = CONTENTION_SYNC
+ * 3) M: Number of Loops
  * 
  * The test will run N Threads in the specified Modality and will perform
  * M loops of increment operation.
+ * 
+ * In both CONTENTION Mod the result is build directly by every Thread.
+ * In AVOID_CONTENTION the result is build in the end when every Thread teminates.
  * 
  * In the end the Test will print the result and the time it took to calculate it.
  *
@@ -28,7 +30,7 @@ import com.mydevelopedworld.contention.IncrementThread.Modality;
 public class TestContention {
 
 	private static final int MODALITY_AVOID_CONTENTION = 0;
-	private static final int MODALITY_CONTENTION_ATOMIC_INT = 1;
+	private static final int MODALITY_CONTENTION_ATOMIC_LONG = 1;
 	private static final int MODALITY_CONTENTION_SYNC = 2;
 
 	private static void printUsage(){
@@ -50,7 +52,7 @@ public class TestContention {
 		}
 
 		int nThread = 0; // Number of Threads
-		int modality = 0; // Modality: 0 = AVOID_CONTENTION; 1 = CONTENTION_ATOMIC_INT; 2 = CONTENTION_SYNC
+		int modality = 0; // Modality: 0 = AVOID_CONTENTION; 1 = CONTENTION_ATOMIC_LONG; 2 = CONTENTION_SYNC
 		int loops = 0; // How many increment operations every Thread will perform
 
 		/* Checking the input args... */
@@ -81,10 +83,10 @@ public class TestContention {
 				threads[i].start();
 			}
 			break;
-		case MODALITY_CONTENTION_ATOMIC_INT:
-			out.println(nThread+" Threads in modality CONTENTION_ATOMIC_INT will loop "+loops+" times...");
+		case MODALITY_CONTENTION_ATOMIC_LONG:
+			out.println(nThread+" Threads in modality CONTENTION_ATOMIC_LONG will loop "+loops+" times...");
 			for(int i = 0; i < nThread; i++){
-				threads[i] = new Thread(new IncrementThread(i, Modality.CONTENTION_ATOMIC_INT, loops, so));
+				threads[i] = new Thread(new IncrementThread(i, Modality.CONTENTION_ATOMIC_LONG, loops, so));
 				threads[i].start();
 			}
 			break;
@@ -128,7 +130,7 @@ public class TestContention {
 			case MODALITY_CONTENTION_SYNC:
 				out.println("\tResult: "+so.getValueSyn());
 				break;
-			default: /* MODALITY_CONTENTION_ATOMIC_INT */
+			default: /* MODALITY_CONTENTION_ATOMIC_LONG */
 				out.println("\tResult: "+so.value);				
 				break;
 			}
